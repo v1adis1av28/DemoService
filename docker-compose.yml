@@ -1,7 +1,4 @@
 services:
-
-  
-
   db:
     image: postgres:latest
     container_name: postgres
@@ -53,6 +50,15 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+  
+  migrate:
+    image: migrate/migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./app/migrations/:/migrations
+    command: ["-path", "/migrations/", "-database", "postgres://postgres:postgres@db:5432/advertisements?sslmode=disable", "up"]
 
 volumes:
   pgdata:
