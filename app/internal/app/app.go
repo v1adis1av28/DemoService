@@ -53,8 +53,7 @@ func (app *App) Run() error {
 }
 
 func (app *App) SetupRoutes() error {
-	app.Router.POST("/api/advertisement")
-	app.Router.GET("/api/advertisements")
+	app.Router.GET("/order/:id")
 	return nil
 }
 
