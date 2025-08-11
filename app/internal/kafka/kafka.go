@@ -1,11 +1,13 @@
 package kafka
 
 import (
+	"bytes"
 	"context"
 	"demo/internal/models"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 
 	kafka "github.com/segmentio/kafka-go"
 )
@@ -37,11 +39,38 @@ func readMessages(ctx context.Context, r *kafka.Reader) {
 		}
 		var order models.Order
 		err = json.Unmarshal(msg.Value, &order)
-		fmt.Printf("Message get:\n")
-		fmt.Println(order)
+		if err != nil {
+			log.Printf("Error unmarshaling order: %v", err)
+			continue
+		}
+		err = sendOrderToAPI(&order)
+		if err != nil {
+			log.Printf("Failed to send order to API: %v", err)
+			continue
+		}
 
-		if err := r.CommitMessages(context.Background(), msg); err != nil {
+		log.Printf("Order %s processed and sent to API", order.OrderUID)
+		if err := r.CommitMessages(ctx, msg); err != nil {
 			log.Printf("Failed to commit message: %v", err)
 		}
 	}
+}
+
+func sendOrderToAPI(order *models.Order) error {
+	jsonData, err := json.Marshal(order)
+	if err != nil {
+		return fmt.Errorf("failed to marshal order: %v", err)
+	}
+
+	resp, err := http.Post("http://localhost:8080/order", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return fmt.Errorf("failed to send POST request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	return nil
 }

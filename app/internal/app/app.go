@@ -2,6 +2,7 @@ package app
 
 import (
 	"demo/internal/database"
+	"demo/internal/handlers"
 	"log"
 	"net/http"
 
@@ -9,14 +10,16 @@ import (
 )
 
 type App struct {
-	DB     *database.DB
-	Router *gin.Engine
+	DB           *database.DB
+	Router       *gin.Engine
+	OrderHandler *handlers.OrderHandler
 }
 
-func NewApp(db *database.DB) *App {
+func NewApp(db *database.DB, handler *handlers.OrderHandler) *App {
 	return &App{
-		DB:     db,
-		Router: gin.Default(),
+		DB:           db,
+		Router:       gin.Default(),
+		OrderHandler: handler,
 	}
 }
 
@@ -53,6 +56,8 @@ func (app *App) Run() error {
 }
 
 func (app *App) SetupRoutes() error {
+
+	app.Router.POST("/order", app.OrderHandler.HandleIncomingOrder)
 	app.Router.GET("/order/:id")
 	return nil
 }

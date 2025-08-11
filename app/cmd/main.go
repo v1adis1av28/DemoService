@@ -3,7 +3,9 @@ package main
 import (
 	"demo/internal/app"
 	"demo/internal/database"
+	"demo/internal/handlers"
 	"demo/internal/kafka"
+	"demo/internal/repository"
 	"demo/internal/utils"
 	"log"
 	"os"
@@ -14,7 +16,9 @@ import (
 
 func main() {
 	db := database.NewDB("postgres://postgres:postgres@db:5432/advertisements?sslmode=disable")
-	app := app.NewApp(db)
+	orderRepository := repository.NewOrderRepository(db.DB_CONN)
+	orderHandler := handlers.NewOrderHandler(orderRepository)
+	app := app.NewApp(db, orderHandler)
 
 	kafkaCfg := kafka.KafkaInfo{
 		BrokkerAddress: "kafka:9092",

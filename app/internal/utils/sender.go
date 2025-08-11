@@ -26,13 +26,12 @@ func StartSender() {
 	}
 	defer writer.Close()
 
-	fmt.Println("Запущен эмиттер сообщений. Буду отправлять заказ каждые 15 секунд...")
 	for {
 		order := generateOrder()
 		jsonData, err := json.Marshal(order)
 		if err != nil {
 			log.Printf("Marshaling error")
-			time.Sleep(15 * time.Second)
+			time.Sleep(30 * time.Second)
 			continue
 		}
 
@@ -47,7 +46,7 @@ func StartSender() {
 			log.Printf("Message send succesfully!")
 		}
 
-		time.Sleep(15 * time.Second)
+		time.Sleep(30 * time.Second)
 	}
 }
 
