@@ -2,10 +2,12 @@ package main
 
 import (
 	"demo/internal/app"
+	"demo/internal/cache"
 	"demo/internal/database"
 	"demo/internal/handlers"
 	"demo/internal/kafka"
 	"demo/internal/repository"
+	"demo/internal/service"
 	"demo/internal/utils"
 	"log"
 	"os"
@@ -16,8 +18,13 @@ import (
 
 func main() {
 	db := database.NewDB("postgres://postgres:postgres@db:5432/advertisements?sslmode=disable")
+
+	RedisClient := cache.NewRedisClient("redis:6379", "")
+
 	orderRepository := repository.NewOrderRepository(db.DB_CONN)
-	orderHandler := handlers.NewOrderHandler(orderRepository)
+	orderService := service.NewOrderService(orderRepository, RedisClient)
+	orderHandler := handlers.NewOrderHandler(orderService)
+
 	app := app.NewApp(db, orderHandler)
 
 	kafkaCfg := kafka.KafkaInfo{
@@ -50,9 +57,8 @@ func main() {
 
 //TODO
 // Реализовать бэкенд
-// 2) получение конкретного объявления GET /order/id
-// 3) получение всех объявлений GET /orders
 // 4) Реализовать кэширование данных в сервисе
 // 5) Написать + связать фронтенд и бэк
+// 5.5) чекнуть gracefull shutdown
 // 6) Тесты?
 // 7) Упаковать readme

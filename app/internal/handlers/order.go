@@ -2,20 +2,22 @@ package handlers
 
 import (
 	"demo/internal/models"
-	"demo/internal/repository"
+	"demo/internal/service"
 	"demo/internal/utils"
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type OrderHandler struct {
-	orderRepository *repository.OrderRepository
+	orderService *service.OrderService
 }
 
-func NewOrderHandler(or *repository.OrderRepository) *OrderHandler {
-	return &OrderHandler{orderRepository: or}
+func NewOrderHandler(or *service.OrderService) *OrderHandler {
+	return &OrderHandler{orderService: or}
 }
 
 func (oh *OrderHandler) HandleIncomingOrder(c *gin.Context) {
@@ -29,7 +31,7 @@ func (oh *OrderHandler) HandleIncomingOrder(c *gin.Context) {
 		log.Printf("Error on validating order with id %s", order.OrderUID)
 		return
 	}
-	err = oh.orderRepository.NewOrder(&order)
+	err = oh.orderService.NewOrder(&order)
 	if err != nil {
 		log.Printf("Error on creating new order %s", err.Error())
 		return
@@ -46,7 +48,10 @@ func (oh *OrderHandler) GetOrderById(c *gin.Context) {
 		return
 	}
 
-	order, err := oh.orderRepository.GetOrderByUUID(uuid)
+	start := time.Now()
+	order, err := oh.orderService.GetOrderByUUID(uuid)
+	elapsedTime := time.Now().Sub(start)
+	fmt.Println("Elapsed time :%s", elapsedTime)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "order with that id not found!"})
 		return
