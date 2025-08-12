@@ -34,10 +34,6 @@ func main() {
 	}
 	os.Stdout.Sync()
 
-	go func() {
-		app.MustStart()
-	}()
-
 	go func(kafkaCfg *kafka.KafkaInfo) {
 		kafka.NewKafka(kafkaCfg)
 	}(&kafkaCfg)
@@ -46,7 +42,9 @@ func main() {
 		time.Sleep(10 * time.Second)
 		utils.StartSender()
 	}()
-
+	go func() {
+		app.MustStart()
+	}()
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 	<-stop
@@ -57,8 +55,6 @@ func main() {
 
 //TODO
 // Реализовать бэкенд
-// 4) Реализовать кэширование данных в сервисе
 // 5) Написать + связать фронтенд и бэк
-// 5.5) чекнуть gracefull shutdown
 // 6) Тесты?
 // 7) Упаковать readme
