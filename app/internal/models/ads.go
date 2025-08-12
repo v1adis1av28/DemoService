@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type Order struct {
 	OrderUID          string    `json:"order_uid" db:"order_uid"`
@@ -58,4 +61,27 @@ type Item struct {
 	NmID        int64   `json:"nm_id" db:"nm_id"`
 	Brand       string  `json:"brand" db:"brand"`
 	Status      int     `json:"status" db:"status"`
+}
+
+type OrderDTO struct {
+	OrderUID        string    `json:"order_uid" db:"order_uid"`
+	TrackNumber     string    `json:"track_number" db:"track_number"`
+	CustomerID      string    `json:"customer_id" db:"customer_id"`
+	DeliveryService string    `json:"delivery_service" db:"delivery_service"`
+	DateCreated     time.Time `json:"date_created" db:"date_created"`
+	TotalPrice      float64   `json:"total_price" db:"total_price"`
+	Items           []string  `json:"items" db:"-"`
+}
+
+func OrderToDTO(o *Order) OrderDTO {
+	fmt.Println(o.Items)
+	items := []string{}
+	sum := 0
+	for _, i := range o.Items {
+		items = append(items, i.Name)
+		sum += int(i.TotalPrice)
+	}
+	return OrderDTO{OrderUID: o.OrderUID, TrackNumber: o.TrackNumber,
+		CustomerID: o.CustomerID, DeliveryService: o.DeliveryService,
+		DateCreated: o.DateCreated, Items: items, TotalPrice: float64(sum)}
 }

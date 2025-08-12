@@ -58,7 +58,7 @@ func (app *App) Run() error {
 func (app *App) SetupRoutes() error {
 
 	app.Router.POST("/order", app.OrderHandler.HandleIncomingOrder)
-	app.Router.GET("/order/:id")
+	app.Router.GET("/order/:id", app.OrderHandler.GetOrderById)
 	return nil
 }
 
