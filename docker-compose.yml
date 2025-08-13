@@ -60,5 +60,13 @@ services:
       - ./app/migrations/:/migrations
     command: ["-path", "/migrations/", "-database", "postgres://postgres:postgres@db:5432/advertisements?sslmode=disable", "up"]
 
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - app
 volumes:
   pgdata:
