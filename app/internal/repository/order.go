@@ -5,6 +5,7 @@ import (
 	"demo/internal/models"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -102,8 +103,9 @@ func (repo *OrderRepository) GetOrderByUUID(uuid string) (*models.Order, error) 
 		`SELECT chrt_id, track_number, price, rid, name, sale, size, 
         total_price, nm_id, brand, status FROM items WHERE order_uid = $1`, uuid)
 	if err != nil {
-		return nil, fmt.Errorf("Error on quering items", err)
+		log.Fatalf("Fail to connect to database: %v", err)
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {

@@ -51,7 +51,7 @@ func (oh *OrderHandler) GetOrderById(c *gin.Context) {
 	start := time.Now()
 	order, err := oh.orderService.GetOrderByUUID(uuid)
 	elapsedTime := time.Now().Sub(start)
-	fmt.Println("Elapsed time :%s", elapsedTime)
+	fmt.Printf("Elapsed time: %s\n", elapsedTime)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "order with that id not found!"})
 		return

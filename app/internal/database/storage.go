@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -15,8 +14,8 @@ type DB struct {
 func NewDB(url string) *DB {
 	conn, err := pgx.Connect(context.Background(), url)
 	if err != nil {
-		log.Fatal("Fail to connect to database, %v", err)
-		os.Exit(1)
+		log.Fatalf("Fail to connect to database: %v", err)
 	}
+
 	return &DB{DB_CONN: conn}
 }

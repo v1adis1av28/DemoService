@@ -46,8 +46,3 @@ func main() {
 	app.Stop()
 	log.Println("Gracefully stopped")
 }
-
-//TODO
-// Добавить чтение из файла конфигурации
-// 6) Тесты
-// 7) Упаковать readme
