@@ -8,12 +8,10 @@ import (
 	"demo/internal/kafka"
 	"demo/internal/repository"
 	"demo/internal/service"
-	"demo/internal/utils"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 func main() {
@@ -39,10 +37,6 @@ func main() {
 	}(&kafkaCfg)
 
 	go func() {
-		time.Sleep(10 * time.Second)
-		utils.StartSender()
-	}()
-	go func() {
 		app.MustStart()
 	}()
 	stop := make(chan os.Signal, 1)
@@ -54,7 +48,6 @@ func main() {
 }
 
 //TODO
-// Реализовать бэкенд
 // Вынести сендер в отдельный сервис
 // Добавить чтение из файла конфигурации
 // 6) Тесты

@@ -1,13 +1,12 @@
-// utils/sender.go
-package utils
+package service
 
 import (
 	"context"
-	"demo/internal/models"
 	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
+	"producer/internal/models"
 	"time"
 
 	"github.com/segmentio/kafka-go"

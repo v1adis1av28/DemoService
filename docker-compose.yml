@@ -68,5 +68,11 @@ services:
       - "3000:80"
     depends_on:
       - app
+
+  sender:
+    build:
+      context: ./producer
+    depends_on:
+      - app
 volumes:
   pgdata:
