@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"demo/internal/config"
 	"demo/internal/database"
 	"demo/internal/handlers"
 	"log"
@@ -16,9 +17,10 @@ type App struct {
 	Router       *gin.Engine
 	Server       *http.Server
 	OrderHandler *handlers.OrderHandler
+	Config       *config.Config
 }
 
-func NewApp(db *database.DB, handler *handlers.OrderHandler) *App {
+func NewApp(db *database.DB, handler *handlers.OrderHandler, cfg *config.Config) *App {
 	router := gin.Default()
 
 	router.Use(func(c *gin.Context) {
@@ -35,7 +37,7 @@ func NewApp(db *database.DB, handler *handlers.OrderHandler) *App {
 	})
 
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    cfg.App.Port,
 		Handler: router,
 	}
 
@@ -44,14 +46,16 @@ func NewApp(db *database.DB, handler *handlers.OrderHandler) *App {
 		Router:       router,
 		Server:       server,
 		OrderHandler: handler,
+		Config:       cfg,
 	}
 
 	app.SetupRoutes()
 
 	return app
 }
+
 func (a *App) MustStart() {
-	log.Println("Starting server on :8080")
+	log.Printf("Starting server on %s", a.Config.App.Port)
 	if err := a.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal("Server failed to start: ", err)
 	}

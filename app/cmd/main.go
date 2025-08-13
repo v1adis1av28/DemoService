@@ -3,6 +3,7 @@ package main
 import (
 	"demo/internal/app"
 	"demo/internal/cache"
+	"demo/internal/config"
 	"demo/internal/database"
 	"demo/internal/handlers"
 	"demo/internal/kafka"
@@ -15,30 +16,29 @@ import (
 )
 
 func main() {
-	db := database.NewDB("postgres://postgres:postgres@db:5432/advertisements?sslmode=disable")
+	cfg := config.GetConfig("config/dev.yml")
 
-	RedisClient := cache.NewRedisClient("redis:6379", "")
+	db := database.NewDB(cfg.Database.PostgresURL)
+	redisClient := cache.NewRedisClient(cfg.Redis.Address, cfg.Redis.Password)
 
 	orderRepository := repository.NewOrderRepository(db.DB_CONN)
-	orderService := service.NewOrderService(orderRepository, RedisClient)
+	orderService := service.NewOrderService(orderRepository, redisClient)
 	orderHandler := handlers.NewOrderHandler(orderService)
 
-	app := app.NewApp(db, orderHandler)
+	app := app.NewApp(db, orderHandler, cfg)
 
-	kafkaCfg := kafka.KafkaInfo{
-		BrokkerAddress: "kafka:9092",
-		Topic:          "orders",
-		GroupId:        "users",
-	}
-	os.Stdout.Sync()
-
-	go func(kafkaCfg *kafka.KafkaInfo) {
-		kafka.NewKafka(kafkaCfg)
-	}(&kafkaCfg)
+	go func() {
+		kafka.NewKafka(&kafka.KafkaInfo{
+			BrokkerAddress: cfg.Kafka.BrokerAddress,
+			Topic:          cfg.Kafka.Topic,
+			GroupId:        cfg.Kafka.GroupId,
+		})
+	}()
 
 	go func() {
 		app.MustStart()
 	}()
+
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 	<-stop
@@ -48,7 +48,6 @@ func main() {
 }
 
 //TODO
-// Вынести сендер в отдельный сервис
 // Добавить чтение из файла конфигурации
 // 6) Тесты
 // 7) Упаковать readme
